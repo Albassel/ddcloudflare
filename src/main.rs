@@ -12,23 +12,23 @@ static INTERVAL: LazyLock<u64> = LazyLock::new(|| {
 });
 
 static DOMAINS: LazyLock<Vec<String>> = LazyLock::new(|| {
-    let d = std::env::var("DOMAINS").expect("No TOKEN provided in the .env file");
+    let d = std::env::var("DOMAINS").expect("No DOMAINS provided in the .env file");
     d.split(',').map(|record| record.trim().to_string()).collect::<Vec<String>>()
 });
 
 static ZONE: LazyLock<String> = LazyLock::new(|| {
-    std::env::var("ZONE").expect("No TOKEN provided in the .env file")
+    std::env::var("ZONE").expect("No ZONE provided in the .env file")
 });
 
 static RECORDS: LazyLock<Vec<String>> = LazyLock::new(|| {
-    let r = std::env::var("RECORDS").expect("No TOKEN provided in the .env file");
+    let r = std::env::var("RECORDS").expect("No RECORDS provided in the .env file");
     r.split(',').map(|record| record.trim().to_string()).collect::<Vec<String>>()
 });
 
 const ADDR: &str = "https://cloudflare.com/cdn-cgi/trace";
 const API: &str = "https://api.cloudflare.com/client/v4/zones/";
 
-
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 
 
@@ -36,12 +36,23 @@ const API: &str = "https://api.cloudflare.com/client/v4/zones/";
 
 #[tokio::main]
 async fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() == 2 && args[1] == "-v" || args.len() >= 2 && args[1] == "--version" {
+        println!("{}", VERSION);
+        std::process::exit(0);
+    } 
+    
+    if args.len() == 3 && args[1] == "-f" {
+        dotenvy::from_path(&args[2]).expect("File you provided is not accessible");
+    } else {
+        dotenvy::dotenv().expect(".env file is inaccessible");
+    }
+    
     if RECORDS.len() > DOMAINS.len() {panic!("Configuration error: you provided more records than domains")}
     if RECORDS.len() < DOMAINS.len() {panic!("Configuration error: you provided more domains than records")}
 
-    dotenvy::dotenv().expect(".env file is inaccessible");
-    let client = Client::new();
 
+    let client = Client::new();
     let mut interval = time::interval(time::Duration::from_secs(*INTERVAL));
 
     loop {
