@@ -8,7 +8,7 @@ static TOKEN: LazyLock<String> = LazyLock::new(|| {
 });
 
 static INTERVAL: LazyLock<u64> = LazyLock::new(|| {
-    std::env::var("INTERVAL").unwrap_or(String::from("50")).parse::<u64>().unwrap_or(50)
+    std::env::var("INTERVAL").unwrap_or(String::from("70")).parse::<u64>().unwrap_or(70)
 });
 
 static DOMAINS: LazyLock<Vec<String>> = LazyLock::new(|| {
@@ -29,6 +29,8 @@ const ADDR: &str = "https://cloudflare.com/cdn-cgi/trace";
 const API: &str = "https://api.cloudflare.com/client/v4/zones/";
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+// TODO: query DNS entries automatically
 
 
 
