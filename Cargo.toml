@@ -1,0 +1,9 @@
+[package]
+name = "ddcloudflare"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenvy = "0.15.7"
+reqwest = "0.12.11"
+tokio = {version = "1.42.0", features = ["rt-multi-thread", "time", "macros", "parking_lot", "sync"]}
